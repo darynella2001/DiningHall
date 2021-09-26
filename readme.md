@@ -1,5 +1,6 @@
-# Network Programming - Laboratory N1 - Dinning Hall
-Restaurant Simulator
+# Network Programming 
+Laboratory N1. Restaurant Simulator. Dinning Hall
+
 ## Table of contents
 * [Description](#description)
 * [Technologies](#technologies)
