@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 	"math/big"
 	"net/http"
 	"os"
+	"time"
 )
 //Foods struct which contains an array of foods
 type Foods struct {
@@ -27,9 +29,9 @@ type Order struct {
 	Id         int    `json:"id"`
 	Items      []int  `json:"items"`
 	Priority   int    `json:"priority"`
-	MaxWait    int    `json:"maxWait"`
+	MaxWait    int    `json:"max-wait"`
+	PickUpTime int    `json:"pick-up-time"`
 }
-
 
 func genRandNum(min, max int64) int64 {
 	// calculate the max we will be using
@@ -63,24 +65,42 @@ func getMaxWait(foods Foods) int{
 	maxWait := float32(maxTime) * 1.3
 	return int(maxWait)
 }
-
+func getUnixTimestamp() int {
+	now := time.Now()
+	sec := now.Unix()
+	return int(sec)
+}
 
 func createOrder(foods Foods) []byte{
+
 	order := &Order{Id : int(genRandNum(1, 100)),
 		Items : generateItems(),
 		Priority: int(genRandNum(1, 5)),
 		MaxWait: getMaxWait(foods),
+		PickUpTime: getUnixTimestamp(),
 	}
 	ord, err := json.Marshal(order)
 	if err != nil{
 		fmt.Printf("Error: %s", err)
 	}
-	//fmt.Print(ord)
 	return ord
 }
 
-func servePage(rw http.ResponseWriter, req *http.Request) {
-	decoder := json.NewDecoder(req.Body)
+func makeRequest (ord []byte){
+	req, err := http.NewRequest("POST", "http://localhost:8080/dininghall", bytes.NewBuffer(ord))
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Skip the error")
+	} else {
+		defer resp.Body.Close()
+		fmt.Println(string(ord))
+		fmt.Println("Request sent")
+	}
+}
+
+func servePage(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
 	var order Order
 	err := decoder.Decode(&order)
 	if err != nil {
@@ -90,12 +110,15 @@ func servePage(rw http.ResponseWriter, req *http.Request) {
 	log.Println(order)
 }
 
+func waiter(foods Foods){
+	order := createOrder(foods)
+	makeRequest(order)
+}
 func main() {
-	jsonFile, err := os.Open("foods.json")
+	jsonFile, err := os.Open("../foods.json")
 	if err != nil {
 		fmt.Println(err)
 	}
-	//fmt.Println("Successfully opened food.json")
 	defer jsonFile.Close()
 
 	//read our opened jsonFile as a byte array
@@ -106,19 +129,18 @@ func main() {
 
 	//we unmarshal our byteArray which contains our
 	//jsonFile's content info 'foods' which we defined above
-
 	json.Unmarshal(byteValue, &foods)
-	//for i:= 0; i < len(foods.Foods); i++{
-	//	fmt.Println("id: " + strconv.Itoa(foods.Foods[i].Id))
-	//	fmt.Println("name: " + foods.Foods[i].Name)
-	//	fmt.Println("preparation time: " + strconv.Itoa(foods.Foods[i].PreparationTime))
-	//	fmt.Println("complexity: " + strconv.Itoa(foods.Foods[i].Complexity))
-	//	fmt.Println("cooking apparatus: " + foods.Foods[i].CookingApparatus)
-	//}
-	//createOrder()
-	createOrder(foods)
+
+
+	go func() {
+		for {
+			go func(){
+				waiter(foods)
+			}()
+			time.Sleep(time.Second)
+		}
+	}()
 
 	http.HandleFunc("/dininghall", servePage)
 	log.Fatal(http.ListenAndServe(":8080", nil))
-
 }
