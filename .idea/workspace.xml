@@ -44,7 +44,7 @@
       <recent name="D:\Eu\univer\sem5\PR\DiningHall\main" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="HTTP Request.All in rest-api">
     <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="DiningHall" />
       <working_directory value="$PROJECT_DIR$" />
@@ -53,8 +53,16 @@
       <directory value="$PROJECT_DIR$" />
       <method v="2" />
     </configuration>
+    <configuration name="All in http-requests-log" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/.idea/httpRequests/http-requests-log.http">
+      <method v="2" />
+    </configuration>
+    <configuration name="All in rest-api" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$APPLICATION_CONFIG_DIR$/scratches/rest-api.http">
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="HTTP Request.All in rest-api" />
+        <item itemvalue="HTTP Request.All in http-requests-log" />
         <item itemvalue="Go Build.go build main.go" />
       </list>
     </recent_temporary>

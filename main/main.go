@@ -115,7 +115,7 @@ func waiter(foods Foods){
 	makeRequest(order)
 }
 func main() {
-	jsonFile, err := os.Open("../foods.json")
+	jsonFile, err := os.Open("../config/foods.json")
 	if err != nil {
 		fmt.Println(err)
 	}
